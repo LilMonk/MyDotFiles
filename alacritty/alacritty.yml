@@ -28,7 +28,7 @@ scrolling:
 font:
   # Normal font face
   normal:
-    family: "FuraMono Nerd Font"
+    family: "FiraMono Nerd Font"
     style: Medium
 
   # Bold font face
@@ -38,12 +38,12 @@ font:
 
   # Italic font face
   italics:
-    family: "FuraMono Nerd Font"
+    family: "FiraMono Nerd Font"
     style: Italic
 
   # Bold italic font face
   bold_italic:
-    family: "FuraMono Nerd Font"
+    family: "FiraMono Nerd Font"
     style: Bold Italic
 
   # Point size
