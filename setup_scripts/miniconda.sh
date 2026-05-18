@@ -1,6 +1,11 @@
 # Download miniconda from : https://docs.conda.io/en/latest/miniconda.html#linux-installers 
 # If you'd prefer that conda's base environment not be activated on startup,
 # set the auto_activate_base parameter to false: (run this only once)
+
+curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
+sha256sum miniconda.sh
+chmod +x miniconda.sh
+./miniconda.sh
 # conda config --set auto_activate_base false
 
 # chmod +x <where miniconda is downloaded>

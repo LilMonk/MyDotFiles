@@ -1,5 +1,9 @@
-sudo apt-get install -y nodejs
+curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 
+# The script will add the NodeSource signing key to your system, create an apt repository file, install all necessary packages, and refresh the apt cache.
+# If you need another Node.js version, for example, 16.x, change the setup_18.x with setup_16.x
+
+sudo apt install nodejs
 
 # Here is a way to install packages globally for a given user.
 # 1. Create a directory for global packages
@@ -21,10 +25,3 @@ export PATH="$PATH:$NPM_PACKAGES/bin"
 # # Preserve MANPATH if you already defined it somewhere in your config.
 # # Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
 export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
-
-curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-
-# The script will add the NodeSource signing key to your system, create an apt repository file, install all necessary packages, and refresh the apt cache.
-# If you need another Node.js version, for example, 16.x, change the setup_18.x with setup_16.x
-
-sudo apt install nodejs
