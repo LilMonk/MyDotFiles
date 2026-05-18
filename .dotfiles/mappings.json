@@ -1,6 +1,5 @@
 {
-  "nvim": "~/.config/nvim",
-  "alacritty/alacritty.yml": "~/.config/alacritty/alacritty.yml",
+  "alacritty/alacritty.toml": "~/.config/alacritty/alacritty.toml",
   "zsh/.zshrc": "~/.zshrc",
   "zsh/.zshenv": "~/.zshenv",
   "tmux/.tmux.conf": "~/.tmux.conf",
