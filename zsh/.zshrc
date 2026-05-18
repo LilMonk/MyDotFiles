@@ -1,4 +1,6 @@
 # -- oh-my-zsh -----------------------------------------------------------------
+zmodload zsh/zprof
+
 export ZSH="/home/$USER/.oh-my-zsh"
 
 ZSH_THEME="robbyrussell"
@@ -30,7 +32,7 @@ unfunction _zrc_dump_doy
 plugins=(
   zshfl
   docker-compose
-  z
+  # z        # removed: redundant with zoxide (set up below); was loading a duplicate jump plugin
   extract
   git
   kubectl
