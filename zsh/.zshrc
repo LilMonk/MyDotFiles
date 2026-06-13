@@ -81,6 +81,11 @@ export PATH=$M2:$PATH
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!{.git,node_modules}/*" 2>/dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
+# Refresh Wayland env inside tmux
+if [ -n "$TMUX" ] && [ -z "$WAYLAND_DISPLAY" ]; then
+  export WAYLAND_DISPLAY=wayland-0
+  export XDG_SESSION_TYPE=wayland
+fi
 
 # -- aliases --------------------------------------------------------------------
 # editors
@@ -130,6 +135,10 @@ alias awspf=set_aws_profile
 # To get info about apt dependencies.
 # alias dependinfo="apt-cache search . | fzf --preview 'apt-cache depends {1}'"
 
+# Claude
+alias claudesw='CLAUDE_CONFIG_DIR=~/.claude-personal/ /home/sentinel/.local/bin/claude'
+alias claudep='CLAUDE_CONFIG_DIR=~/.claude-sidewalk/ /home/sentinel/.local/bin/claude'
+alias claude="echo 'Use specific commands: claudep (personal) or claudesw (sidewalk)'"
 
 # -- functions ------------------------------------------------------------------
 mkcd() { mkdir -p "$@" && cd "$@"; }
@@ -146,7 +155,7 @@ ranger-cd() {
 
 set_aws_profile() {
   local selected
-  selected=$(aws configure list-profiles | fzf --prompt="AWS Profile: ") || return
+  selected=$(awk '/^\[default\]/{print "default"} /^\[profile /{gsub(/^\[profile |]$/, ""); print}' ~/.aws/config | fzf --prompt="AWS Profile: ") || return
   export AWS_PROFILE="$selected"
   echo "AWS Profile: $AWS_PROFILE"
 }
@@ -209,3 +218,22 @@ fi
 # # we have to load jenv inorder to set JAVA_HOME.
 
 # eval "$(jenv init -)"
+
+
+# -- gcloud config switcher (fzf) ---------------------------------------------
+# Interactively pick a gcloud configuration (account + project + region) and
+# activate it. Pass a name to skip the picker:  gcfg ecovistaind
+# (named gcfg because `gcp` is git-cherry-pick from the oh-my-zsh git plugin)
+gcfg() {
+  local cfg
+  if [[ -n "$1" ]]; then
+    cfg="$1"
+  else
+    cfg=$(ls ~/.config/gcloud/configurations/ | sed 's/^config_//' \
+      | fzf --height=40% --reverse --prompt="gcloud config > " \
+            --header="↵ activate · preview shows account/project" \
+            --preview='cat ~/.config/gcloud/configurations/config_{} 2>/dev/null') \
+      || return
+  fi
+  [[ -n "$cfg" ]] && gcloud config configurations activate "$cfg"
+}
