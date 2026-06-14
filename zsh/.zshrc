@@ -61,6 +61,7 @@ export NPM_PACKAGES="$HOME/.npm-packages"
 export LESS_TERMCAP_md=$'\e[1;32m'
 export LESS_TERMCAP_me=$'\e[0m'
 
+[[ -d /opt/google-cloud-cli/bin ]] && export PATH="/opt/google-cloud-cli/bin:$PATH"
 
 # -- path -----------------------------------------------------------------------
 export PATH="$HOME/miniconda3/bin:$PATH"
