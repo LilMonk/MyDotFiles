@@ -1,4 +1,5 @@
 {
+  "nvim": "~/.config/nvim-test",
   "alacritty/alacritty.toml": "~/.config/alacritty/alacritty.toml",
   "zsh/.zshrc": "~/.zshrc",
   "zsh/.zshenv": "~/.zshenv",
