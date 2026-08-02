@@ -11,8 +11,24 @@ return {
     },
     appearance = { nerd_font_variant = "mono" },
     completion = {
-      documentation = { auto_show = true, auto_show_delay_ms = 200 },
-      menu = { border = "rounded" },
+      accept = { auto_brackets = { enabled = true } },
+      documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 200,
+          window = { border = "single" },
+        },
+
+        menu = {
+          border = "single",
+          draw = {
+            treesitter = { "lsp" },
+          },
+        },
+        
+        -- Optional: Enable VSCode-like ghost text for inline suggestions
+        ghost_text = {
+          enabled = false, -- Set to true if you want the inline grey text preview
+        },
     },
     signature = { enabled = true }, -- parameter hints while typing a call
     sources = {
