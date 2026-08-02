@@ -49,12 +49,27 @@ return {
     },
     keys = {
       { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle explorer" },
+      { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
     },
     opts = {
       close_if_last_window = true,
+      event_handlers = {
+        {
+          event = "file_opened",
+          handler = function(file_path)
+            -- auto close
+            require("neo-tree.command").execute({ action = "close" })
+          end
+        }
+      },
       filesystem = {
         follow_current_file = { enabled = true },
         use_libuv_file_watcher = true,
+        window = {
+          mappings = {
+            ['\\'] = 'close_window',
+          },
+        },
       },
     },
   },
@@ -94,4 +109,11 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     opts = {},
   },
+
+  {
+    "nmac427/guess-indent.nvim",
+    enabled = require("core.plugins").enabled("indent"),
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {},
+  }
 }
