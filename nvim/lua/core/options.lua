@@ -67,10 +67,19 @@ opt.confirm = true -- prompt instead of failing on unsaved changes
 
 -- Diagnostics presentation (built-in vim.diagnostic).
 vim.diagnostic.config({
-  virtual_text = { spacing = 2, prefix = "●" },
-  signs = true,
-  underline = true,
+  -- `if_many` names the server only when several are attached to the buffer,
+  -- which is what tells a ruff complaint apart from a basedpyright one.
+  virtual_text = { spacing = 2, prefix = "●", source = "if_many" },
+  signs = g.have_nerd_font and {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "󰅚 ",
+      [vim.diagnostic.severity.WARN] = "󰀪 ",
+      [vim.diagnostic.severity.INFO] = "󰋽 ",
+      [vim.diagnostic.severity.HINT] = "󰌶 ",
+    },
+  } or true,
+  underline = { severity = vim.diagnostic.severity.ERROR }, -- hints/info stay unsquiggled
   update_in_insert = false,
   severity_sort = true,
-  float = { border = "rounded", source = true },
+  float = { border = "rounded", source = "if_many" },
 })
