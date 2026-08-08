@@ -64,9 +64,8 @@ return {
       ensure_installed = { "gopls", "basedpyright", "ruff" },
     })
 
-    -- Buffer-local autocmds for symbol highlighting live here; entries are
-    -- scoped per buffer and removed again on LspDetach.
-    local highlight_group = vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
+    -- Symbol-under-cursor highlighting (and ]]/[[ navigation between the
+    -- references) is handled by snacks.words — see plugins/snacks.lua.
 
     -- Buffer-local keymaps + inlay hints when a server attaches.
     vim.api.nvim_create_autocmd("LspAttach", {
@@ -91,45 +90,6 @@ return {
         end, "Format buffer")
 
         local client = vim.lsp.get_client_by_id(args.data.client_id)
-
-        -- Highlight other occurrences of the symbol under the cursor after
-        -- 'updatetime' (250ms), and clear them as soon as the cursor moves.
-        -- The flag keeps a second server on the same buffer (ruff + basedpyright)
-        -- from registering a duplicate set.
-        if
-          client
-          and client:supports_method("textDocument/documentHighlight")
-          and not vim.b[bufnr].lsp_highlight_attached
-        then
-          vim.b[bufnr].lsp_highlight_attached = true
-
-          vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-            buffer = bufnr,
-            group = highlight_group,
-            callback = vim.lsp.buf.document_highlight,
-          })
-          vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-            buffer = bufnr,
-            group = highlight_group,
-            callback = vim.lsp.buf.clear_references,
-          })
-          vim.api.nvim_create_autocmd("LspDetach", {
-            buffer = bufnr,
-            group = highlight_group,
-            callback = function(detach)
-              -- Buffer-scoped: the detaching buffer may not be the current one.
-              vim.lsp.util.buf_clear_references(bufnr)
-              -- Only tear down once no remaining client can highlight.
-              local still_supported = vim.iter(vim.lsp.get_clients({ bufnr = bufnr })):any(function(c)
-                return c.id ~= detach.data.client_id and c:supports_method("textDocument/documentHighlight")
-              end)
-              if not still_supported then
-                vim.b[bufnr].lsp_highlight_attached = nil
-                vim.api.nvim_clear_autocmds({ group = highlight_group, buffer = bufnr })
-              end
-            end,
-          })
-        end
 
         if client and client:supports_method("textDocument/inlayHint") then
           vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })

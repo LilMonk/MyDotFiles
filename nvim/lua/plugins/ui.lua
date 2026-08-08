@@ -97,6 +97,9 @@ return {
         { "<leader>g", group = "git" },
         { "<leader>s", group = "search" },
         { "<leader>m", group = "multicursor" },
+        { "<leader>b", group = "buffer" },
+        { "<leader>t", group = "terminal" },
+        { "<leader>u", group = "ui/toggle" },
       })
     end,
   },
