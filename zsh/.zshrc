@@ -1,4 +1,5 @@
 # -- oh-my-zsh -----------------------------------------------------------------
+zmodload zsh/datetime && zsh_start_time=$EPOCHREALTIME
 zmodload zsh/zprof
 
 export ZSH="/home/$USER/.oh-my-zsh"
@@ -14,6 +15,23 @@ DISABLE_AUTO_UPDATE="true"
 DISABLE_MAGIC_FUNCTIONS="true"
 DISABLE_COMPFIX="true"
 
+# OMZ skips its internal, slow compinit call
+skip_global_compinit=1
+
+plugins=(
+  zshfl
+  docker-compose
+  extract
+  git
+  kubectl
+  fzf
+  history
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
+source $ZSH/oh-my-zsh.sh
+
 # rebuild completions once per day, use cache otherwise
 autoload -Uz compinit
 ZCOMP_DUMP="${ZDOTDIR:-$HOME}/.zcompdump"
@@ -28,21 +46,6 @@ else
   compinit
 fi
 unfunction _zrc_dump_doy
-
-plugins=(
-  zshfl
-  docker-compose
-  # z        # removed: redundant with zoxide (set up below); was loading a duplicate jump plugin
-  extract
-  git
-  kubectl
-  fzf
-  history
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-)
-
-source $ZSH/oh-my-zsh.sh
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=243,underline"
 ZSH_AUTOSUGGEST_USE_ASYNC=1
@@ -139,6 +142,7 @@ alias awspf=set_aws_profile
 # Claude
 alias claudesw='CLAUDE_CONFIG_DIR=~/.claude-personal/ /home/sentinel/.local/bin/claude'
 alias claudep='CLAUDE_CONFIG_DIR=~/.claude-sidewalk/ /home/sentinel/.local/bin/claude'
+alias claudev='CLAUDE_CONFIG_DIR=~/.claude-visitingcto/ /home/sentinel/.local/bin/claude'
 alias claude="echo 'Use specific commands: claudep (personal) or claudesw (sidewalk)'"
 
 # -- functions ------------------------------------------------------------------
@@ -238,3 +242,17 @@ gcfg() {
   fi
   [[ -n "$cfg" ]] && gcloud config configurations activate "$cfg"
 }
+
+
+# Calculate and print startup time (must be at the very end)
+if [[ -n $zsh_start_time ]]; then
+  # Calculate duration using floating-point arithmetic
+  zsh_end_time=$EPOCHREALTIME
+  startup_duration=$(( (zsh_end_time - zsh_start_time) * 1000 ))
+  
+  # Print the result cleanly in milliseconds
+  printf "Shell loaded in %.0fms\n" "$startup_duration"
+  
+  # Clean up variables
+  unset zsh_start_time zsh_end_time startup_duration
+fi
