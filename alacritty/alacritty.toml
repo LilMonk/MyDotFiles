@@ -502,7 +502,7 @@ semantic_escape_chars = ''',│`|:"' ()[]{}<>	'''
 [window]
 decorations = "None"
 dynamic_title = true
-opacity = 0.85
+opacity = 0.92
 startup_mode = "Windowed"
 
 [window.dimensions]
