@@ -33,6 +33,13 @@ opt.splitright = true
 opt.splitbelow = true
 opt.showmode = false -- don't show the mode, since it's already in the status line
 
+-- Folding
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+opt.foldtext = "" -- keep the folded line syntax-highlighted instead of dimmed
+opt.foldlevelstart = 99 -- open files fully unfolded; fold on demand with zM
+opt.foldnestmax = 4 -- deeply nested blocks stop generating fold noise
+
 -- Indentation (LSP/formatters refine per-language; these are sane defaults)
 opt.expandtab = true
 opt.shiftwidth = 4
