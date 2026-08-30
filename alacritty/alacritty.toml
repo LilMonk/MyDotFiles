@@ -92,6 +92,13 @@ mods = "Control|Shift"
 enabled = true
 mods = "None"
 
+# Ctrl+Backspace deletes the previous word (as in VSCode). Sent as `\u0017`
+# (Ctrl+W) rather than as a real <C-BS> key event.
+[[keyboard.bindings]]
+chars = "\u0017"
+key = "Back"
+mods = "Control"
+
 [[keyboard.bindings]]
 action = "ClearLogNotice"
 key = "L"
