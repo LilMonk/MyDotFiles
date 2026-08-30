@@ -47,8 +47,8 @@ unfocused_hollow = true
 vi_mode_style = "Block"
 
 [cursor.style]
-blinking = "On"
-shape = "Beam"
+blinking = "Off"
+shape = "Block"
 
 [env]
 TERM = "xterm-256color"
