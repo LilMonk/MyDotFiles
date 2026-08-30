@@ -19,75 +19,76 @@ return {
     enabled = require("core.plugins").enabled("gitsigns"),
     event = { "BufReadPre", "BufNewFile" },
     opts = {
+      -- Staged hunks get their own (hollow) glyphs, so the gutter distinguishes
+      -- "changed" from "changed and already staged" the way VSCode's does.
+      signs = {
+        add = { text = "▎" }, change = { text = "▎" },
+        delete = { text = "" }, topdelete = { text = "" },
+        changedelete = { text = "▎" }, untracked = { text = "▎" },
+      },
+      signs_staged = {
+        add = { text = "┃" }, change = { text = "┃" },
+        delete = { text = "" }, topdelete = { text = "" },
+        changedelete = { text = "┃" }, untracked = { text = "┃" },
+      },
+
+      -- Both are too noisy to leave on; they're bound to <leader>uW / <leader>uB
+      -- in plugins/snacks.lua instead.
+      word_diff = false,
+      current_line_blame = false,
+      current_line_blame_opts = { delay = 300, virt_text_pos = "eol" },
+
+      preview_config = { border = "rounded" }, -- matches the completion border
+
       on_attach = function(bufnr)
         local gs = require("gitsigns")
-        local function map(lhs, rhs, desc)
-          vim.keymap.set("n", lhs, rhs, { buffer = bufnr, desc = desc })
+        local function map(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
         end
-        map("]c", function() gs.nav_hunk("next") end, "Next hunk")
-        map("[c", function() gs.nav_hunk("prev") end, "Prev hunk")
-        map("<leader>gs", gs.stage_hunk, "Stage hunk")
-        map("<leader>gr", gs.reset_hunk, "Reset hunk")
-        map("<leader>gp", gs.preview_hunk, "Preview hunk")
-        map("<leader>gb", function() gs.blame_line({ full = true }) end, "Blame line")
+
+        -- In a diff-mode buffer (diffsplit, and diffview's 3-way merge view)
+        -- ]c/[c must stay the builtin diff-change motion — hunk-nav there would
+        -- fight the very view you opened to resolve a conflict.
+        map("n", "]c", function()
+          if vim.wo.diff then
+            vim.cmd.normal({ "]c", bang = true })
+          else
+            gs.nav_hunk("next")
+          end
+        end, "Next hunk")
+        map("n", "[c", function()
+          if vim.wo.diff then
+            vim.cmd.normal({ "[c", bang = true })
+          else
+            gs.nav_hunk("prev")
+          end
+        end, "Prev hunk")
+
+        -- Normal mode acts on the hunk under the cursor; visual mode acts on the
+        -- selected lines only, which is how you stage part of a hunk.
+        map("n", "<leader>gs", gs.stage_hunk, "Stage hunk")
+        map("n", "<leader>gr", gs.reset_hunk, "Reset hunk")
+        map("x", "<leader>gs", function()
+          gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+        end, "Stage selected lines")
+        map("x", "<leader>gr", function()
+          gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+        end, "Reset selected lines")
+
+        map("n", "<leader>gp", gs.preview_hunk, "Preview hunk (float)")
+        map("n", "<leader>gi", gs.preview_hunk_inline, "Preview hunk (inline)")
+        map("n", "<leader>gb", function() gs.blame_line({ full = true }) end, "Blame line")
+
+        map("n", "<leader>gS", gs.stage_buffer, "Stage buffer")
+        map("n", "<leader>gR", gs.reset_buffer, "Reset buffer")
+        -- undo_stage_hunk is deprecated: stage_hunk now toggles, so invoking it
+        -- on a staged sign is the unstage path.
+        map("n", "<leader>gu", gs.stage_hunk, "Unstage hunk (on a staged sign)")
+
+        map("n", "<leader>gd", gs.diffthis, "Diff against index")
+        map("n", "<leader>gD", function() gs.diffthis("~") end, "Diff against last commit")
       end,
     },
   },
 }
 
-
--- {
---     'lewis6991/gitsigns.nvim',
---     opts = {
---       on_attach = function(bufnr)
---         local gitsigns = require 'gitsigns'
-
---         local function map(mode, l, r, opts)
---           opts = opts or {}
---           opts.buffer = bufnr
---           vim.keymap.set(mode, l, r, opts)
---         end
-
---         -- Navigation
---         map('n', ']c', function()
---           if vim.wo.diff then
---             vim.cmd.normal { ']c', bang = true }
---           else
---             gitsigns.nav_hunk 'next'
---           end
---         end, { desc = 'Jump to next git [c]hange' })
-
---         map('n', '[c', function()
---           if vim.wo.diff then
---             vim.cmd.normal { '[c', bang = true }
---           else
---             gitsigns.nav_hunk 'prev'
---           end
---         end, { desc = 'Jump to previous git [c]hange' })
-
---         -- Actions
---         -- visual mode
---         map('v', '<leader>hs', function()
---           gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
---         end, { desc = 'git [s]tage hunk' })
---         map('v', '<leader>hr', function()
---           gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
---         end, { desc = 'git [r]eset hunk' })
---         -- normal mode
---         map('n', '<leader>hs', gitsigns.stage_hunk, { desc = 'git [s]tage hunk' })
---         map('n', '<leader>hr', gitsigns.reset_hunk, { desc = 'git [r]eset hunk' })
---         map('n', '<leader>hS', gitsigns.stage_buffer, { desc = 'git [S]tage buffer' })
---         map('n', '<leader>hu', gitsigns.stage_hunk, { desc = 'git [u]ndo stage hunk' })
---         map('n', '<leader>hR', gitsigns.reset_buffer, { desc = 'git [R]eset buffer' })
---         map('n', '<leader>hp', gitsigns.preview_hunk, { desc = 'git [p]review hunk' })
---         map('n', '<leader>hb', gitsigns.blame_line, { desc = 'git [b]lame line' })
---         map('n', '<leader>hd', gitsigns.diffthis, { desc = 'git [d]iff against index' })
---         map('n', '<leader>hD', function()
---           gitsigns.diffthis '@'
---         end, { desc = 'git [D]iff against last commit' })
---         -- Toggles
---         map('n', '<leader>tb', gitsigns.toggle_current_line_blame, { desc = '[T]oggle git show [b]lame line' })
---         map('n', '<leader>tD', gitsigns.preview_hunk_inline, { desc = '[T]oggle git show [D]eleted' })
---       end,
---     },
---   },

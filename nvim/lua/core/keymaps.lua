@@ -22,6 +22,11 @@ map("i", "<A-k>", "<Esc><cmd>m .-2<cr>==gi", { desc = "Move line up" })
 map("x", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "Move selection down" })
 map("x", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move selection up" })
 
+-- Jumplist navigation. Aliases for <C-o>/<C-i>,
+-- which keep working.
+map("n", "<A-]>", "<C-i>", { desc = "Jumplist: forward" })
+map("n", "<A-[>", "<C-o>", { desc = "Jumplist: back" })
+
 -- Move focus between splits with Ctrl+h/j/k/l.
 map("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
 map("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
@@ -31,6 +36,12 @@ map("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
 -- Buffer navigation (Shift+H / Shift+L). :bnext/:bprevious follow bufferline order.
 map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
 map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+
+-- Delete the previous word in insert mode. <C-g>u first, so each word-delete is
+-- its own undo step instead of merging into the surrounding insert.
+map("i", "<C-w>", "<C-g>u<C-w>", { desc = "Delete previous word" })
+map("i", "<C-BS>", "<C-g>u<C-w>", { desc = "Delete previous word" })
+map("i", "<S-BS>", "<C-g>u<C-w>", { desc = "Delete previous word" })
 
 -- Clear search highlight.
 map("n", "<Esc>", "<cmd>nohlsearch<cr><Esc>", { desc = "Clear search highlight" })

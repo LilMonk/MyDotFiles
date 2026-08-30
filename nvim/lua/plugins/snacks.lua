@@ -102,6 +102,19 @@ return {
       toggle.line_number():map("<leader>ul")
       toggle.diagnostics():map("<leader>ud")
       toggle.treesitter():map("<leader>uT")
+
+      if switches.enabled("gitsigns") then
+        local function gs_toggle(name, fn, field, key)
+          toggle({
+            name = name,
+            get = function() return require("gitsigns.config").config[field] end,
+            set = function(state) require("gitsigns")[fn](state) end,
+          }):map(key)
+        end
+        gs_toggle("Git Signs", "toggle_signs", "signcolumn", "<leader>ug")
+        gs_toggle("Git Word Diff", "toggle_word_diff", "word_diff", "<leader>uW")
+        gs_toggle("Git Line Blame", "toggle_current_line_blame", "current_line_blame", "<leader>uB")
+      end
     end
   end,
 }

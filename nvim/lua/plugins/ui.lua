@@ -93,7 +93,7 @@ return {
       wk.setup(opts)
       wk.add({
         { "<leader>f", group = "find" },
-        { "<leader>c", group = "code" },
+        { "<leader>c", group = "code/conflict" },
         { "<leader>g", group = "git" },
         { "<leader>s", group = "search" },
         { "<leader>m", group = "multicursor" },
