@@ -50,9 +50,16 @@ return {
     keys = {
       { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle explorer" },
       { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+      { "<leader>ge", "<cmd>Neotree git_status toggle<cr>", desc = "Git explorer" },
+      { "<leader>be", "<cmd>Neotree buffers toggle<cr>", desc = "Buffer explorer" },
     },
+    deactivate = function()
+      vim.cmd([[Neotree close]])
+    end,
     opts = {
       close_if_last_window = true,
+      sources = { "filesystem", "buffers", "git_status" },
+      open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
       event_handlers = {
         {
           event = "file_opened",
@@ -71,7 +78,92 @@ return {
           },
         },
       },
+      window = {
+        mappings = {
+          ["l"] = "open",
+          ["h"] = "close_node",
+          ["<space>"] = "none",
+          ["Y"] = {
+            function(state)
+              vim.fn.setreg("+", state.tree:get_node():get_id(), "c")
+            end,
+            desc = "Copy path to clipboard",
+          },
+          ["gy"] = {
+            function(state)
+              local node = state.tree:get_node()
+              if not node then
+                return
+              end
+              local path = node.path or node:get_id()
+              -- ":." is relative to cwd, and degrades to the absolute path
+              -- when the entry lives outside cwd.
+              local rel = vim.fn.fnamemodify(path, ":.")
+              vim.fn.setreg("+", rel, "c")
+              vim.notify("Copied: " .. rel)
+            end,
+            desc = "Copy relative path to clipboard",
+          },
+          ["gO"] = {
+            function(state)
+              local node = state.tree:get_node()
+              if not node then
+                return
+              end
+              local path = node.path or node:get_id()
+              -- open the containing folder with the entry itself selected.
+              if vim.fn.executable("nautilus") == 1 then
+                vim.system({ "nautilus", "--select", path }, { detach = true })
+              else
+                vim.ui.open(vim.fs.dirname(path))
+              end
+            end,
+            desc = "Open containing folder",
+          },
+          ["O"] = {
+            function(state)
+              require("lazy.util").open(state.tree:get_node().path, { system = true })
+            end,
+            desc = "Open with system application",
+          },
+        },
+      },
+      default_component_configs = {
+        git_status = {
+          symbols = {
+            unstaged = "󰄱",
+            staged = "󰱒",
+          },
+        },
+      },
     },
+    config = function(_, opts)
+      -- When renaming or moving the file from neotree, this helps snacks rename 
+      -- plugin to rename the imports in all the files that have the old file references.
+      if require("core.plugins").module("snacks", "rename") then
+        local function on_move(data)
+          Snacks.rename.on_rename_file(data.source, data.destination)
+        end
+        local events = require("neo-tree.events")
+        vim.list_extend(opts.event_handlers, {
+          { event = events.FILE_MOVED, handler = on_move },
+          { event = events.FILE_RENAMED, handler = on_move },
+        })
+      end
+
+      require("neo-tree").setup(opts)
+
+      -- Refresh when terminal exits. This helps the git actions taken in
+      -- terminal to be reflected in neotree.
+      vim.api.nvim_create_autocmd("TermClose", {
+        pattern = "*lazygit",
+        callback = function()
+          if package.loaded["neo-tree.sources.git_status"] then
+            require("neo-tree.sources.git_status").refresh()
+          end
+        end,
+      })
+    end,
   },
 
   -- Keybinding hints.
@@ -80,10 +172,6 @@ return {
     enabled = require("core.plugins").enabled("whichkey"),
     event = "VeryLazy",
     opts = {
-      -- Default triggers include operator-pending mode ("o"), which pops up
-      -- a help window on bare c/d/y before the motion/text-object is typed —
-      -- visibly resizing the window mid-edit. Drop "o" to keep auto-triggering
-      -- for normal/visual/select (leader groups, gc, etc.) without that.
       triggers = {
         { "<auto>", mode = "nxso" },
       },
