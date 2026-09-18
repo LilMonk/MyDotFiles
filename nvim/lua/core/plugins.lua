@@ -33,6 +33,7 @@ M.map = {
   neotree     = true, -- nvim-neo-tree/neo-tree.nvim
   whichkey    = true, -- folke/which-key.nvim
   indent      = true, -- lukas-reineke/indent-blankline.nvim
+  claudecode  = true, -- coder/claudecode.nvim
 
   -- folke/snacks.nvim — per-module switches. Modules absent from this table are
   -- off: snacks only starts a module whose key we pass in `opts`.
