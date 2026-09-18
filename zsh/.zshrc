@@ -140,10 +140,10 @@ alias awspf=set_aws_profile
 # alias dependinfo="apt-cache search . | fzf --preview 'apt-cache depends {1}'"
 
 # Claude
-alias claudesw='CLAUDE_CONFIG_DIR=~/.claude-personal/ /home/sentinel/.local/bin/claude'
-alias claudep='CLAUDE_CONFIG_DIR=~/.claude-sidewalk/ /home/sentinel/.local/bin/claude'
+alias claudep='CLAUDE_CONFIG_DIR=~/.claude-personal/ /home/sentinel/.local/bin/claude'
+alias claudesw='CLAUDE_CONFIG_DIR=~/.claude-sidewalk/ /home/sentinel/.local/bin/claude'
 alias claudev='CLAUDE_CONFIG_DIR=~/.claude-visitingcto/ /home/sentinel/.local/bin/claude'
-alias claude="echo 'Use specific commands: claudep (personal) or claudesw (sidewalk)'"
+alias claude="echo 'Use specific commands: claudep (personal) or claudesw (sidewalk) or claudev (visitingcto)'"
 
 # -- functions ------------------------------------------------------------------
 mkcd() { mkdir -p "$@" && cd "$@"; }
